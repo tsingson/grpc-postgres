@@ -9,7 +9,7 @@ import (
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jackc/pgx/pgtype"
 
-	pbUsers "github.com/johanbrandhorst/grpc-postgres/proto"
+	pbUsers "github.com/tsingson/grpc-postgres/proto"
 )
 
 type roleWrapper pbUsers.Role

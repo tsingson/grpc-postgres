@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pbUsers "github.com/johanbrandhorst/grpc-postgres/proto"
+	pbUsers "github.com/tsingson/grpc-postgres/proto"
 )
 
 // Directory stores a directory of users.
@@ -34,10 +34,10 @@ func NewDirectory(logger *logrus.Logger, pgURL *url.URL) (*Directory, error) {
 	c.Logger = logrusadapter.NewLogger(logger)
 	db := stdlib.OpenDB(c)
 
-	err = validateSchema(db)
-	if err != nil {
-		return nil, err
-	}
+	// err = validateSchema(db)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return &Directory{
 		logger: logger,
@@ -56,9 +56,10 @@ func (d Directory) AddUser(ctx context.Context, req *pbUsers.AddUserRequest) (*p
 	q := d.sb.Insert(
 		"users",
 	).SetMap(map[string]interface{}{
-		"role": (roleWrapper)(req.GetRole()),
+		"role":      (roleWrapper)(req.GetRole()),
+		"user_name": (string)(req.GetUserName()),
 	}).Suffix(
-		"RETURNING id, role, create_time",
+		"RETURNING id, role, user_name, create_time",
 	)
 
 	return scanUser(q.QueryRowContext(ctx))
@@ -71,7 +72,7 @@ func (d Directory) DeleteUser(ctx context.Context, req *pbUsers.DeleteUserReques
 	).Where(squirrel.Eq{
 		"id": req.GetId(),
 	}).Suffix(
-		"RETURNING id, role, create_time",
+		"RETURNING id, role, user_name, create_time",
 	).ToSql()
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -85,6 +86,7 @@ func (d Directory) ListUsers(req *pbUsers.ListUsersRequest, srv pbUsers.UserServ
 	q := d.sb.Select(
 		"id",
 		"role",
+		"user_name",
 		"create_time",
 	).From(
 		"users",

@@ -16,8 +16,8 @@ import (
 	"github.com/ory/dockertest/docker"
 	"github.com/sirupsen/logrus"
 
-	pbUsers "github.com/johanbrandhorst/grpc-postgres/proto"
-	"github.com/johanbrandhorst/grpc-postgres/users"
+	pbUsers "github.com/tsingson/grpc-postgres/proto"
+	"github.com/tsingson/grpc-postgres/users"
 )
 
 var (

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
@@ -11,11 +10,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 
-	pbUsers "github.com/johanbrandhorst/grpc-postgres/proto"
-	"github.com/johanbrandhorst/grpc-postgres/users"
+	pbUsers "github.com/tsingson/grpc-postgres/proto"
+	"github.com/tsingson/grpc-postgres/users"
 )
 
 type pgURL url.URL
@@ -51,6 +49,8 @@ func main() {
 	flag.Var(&u, "postgres-url", "URL formatted address of the postgres server to connect to")
 	flag.Parse()
 
+	_ = u.Set("postgresql://postgres:postgres@localhost:5433/demo")
+
 	log := logrus.New()
 	log.Formatter = &logrus.TextFormatter{
 		TimestampFormat: time.RFC3339,
@@ -61,10 +61,10 @@ func main() {
 		log.Fatal("Flag postgres-url is required")
 	}
 
-	cert, err := tls.LoadX509KeyPair(*cert, *key)
-	if err != nil {
-		log.WithError(err).Fatal("Failed to parse certificate and key")
-	}
+	// cert, err := tls.LoadX509KeyPair(*cert, *key)
+	// if err != nil {
+	// 	log.WithError(err).Fatal("Failed to parse certificate and key")
+	// }
 
 	addr := fmt.Sprintf(":%d", *port)
 	lis, err := net.Listen("tcp", addr)
@@ -72,7 +72,8 @@ func main() {
 		log.WithError(err).Fatal("Failed to listen")
 	}
 	s := grpc.NewServer(
-		grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
+
+	//	grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
 	)
 	reflection.Register(s)
 

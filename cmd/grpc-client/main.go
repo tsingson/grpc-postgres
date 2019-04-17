@@ -3,26 +3,29 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 
-	pbUsers "github.com/johanbrandhorst/grpc-postgres/proto"
+	pbUsers "github.com/tsingson/grpc-postgres/proto"
 )
 
 var (
-	addr      = flag.String("addr", "dns:///localhost:10000", "The address of the gRPC server")
+	addr      = flag.String("addr", ":10000", "The address of the gRPC server")
 	cert      = flag.String("cert", "../insecure/cert.pem", "The path of the server certificate")
 	olderThan = flag.Duration("older_than", 0, "Filter to use when listing users.")
-	add       = flag.Bool("add", false, "Whether to add another user")
+	add       = flag.String("add", "test", "Whether to add another user")
 )
 
 func main() {
 	flag.Parse()
+	if len(*add) > 0 {
+		fmt.Println("----------------> user name:", *add)
+	}
 
 	log := logrus.New()
 	log.Formatter = &logrus.TextFormatter{
@@ -30,14 +33,15 @@ func main() {
 		FullTimestamp:   true,
 	}
 
-	creds, err := credentials.NewClientTLSFromFile(*cert, "")
-	if err != nil {
-		log.WithError(err).Fatal("Failed to create server credentials")
-	}
+	// creds, err := credentials.NewClientTLSFromFile(*cert, "")
+	// if err != nil {
+	// 	log.WithError(err).Fatal("Failed to create server credentials")
+	// }
 
 	conn, err := grpc.Dial(
 		*addr,
-		grpc.WithTransportCredentials(creds),
+		grpc.WithInsecure(),
+		// grpc.WithTransportCredentials(creds),
 	)
 	if err != nil {
 		log.WithError(err).Fatal("Failed to dial the server")
@@ -48,9 +52,10 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if *add {
+	if len(*add) > 0 {
 		user, err := c.AddUser(ctx, &pbUsers.AddUserRequest{
-			Role: pbUsers.Role_GUEST,
+			Role:     pbUsers.Role_GUEST,
+			UserName: *add,
 		})
 		if err != nil {
 			log.WithError(err).Fatal("Failed to add user")
@@ -63,6 +68,7 @@ func main() {
 
 		log.WithFields(logrus.Fields{
 			"id":          user.GetId(),
+			"user_name":   user.GetUserName(),
 			"role":        user.GetRole().String(),
 			"create_time": t.Local().Format(time.RFC3339),
 		}).Info("Added user")
@@ -95,6 +101,7 @@ func main() {
 
 		log.WithFields(logrus.Fields{
 			"id":          user.GetId(),
+			"user_name":   user.GetUserName(),
 			"role":        user.GetRole().String(),
 			"create_time": t.Local().Format(time.RFC3339),
 		}).Info("Read user")

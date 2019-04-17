@@ -4,15 +4,15 @@ import (
 	"database/sql"
 
 	"github.com/Masterminds/squirrel"
-	migrate "github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pbUsers "github.com/johanbrandhorst/grpc-postgres/proto"
-	"github.com/johanbrandhorst/grpc-postgres/users/migrations"
+	pbUsers "github.com/tsingson/grpc-postgres/proto"
+	"github.com/tsingson/grpc-postgres/users/migrations"
 )
 
 // version defines the current migration version. This ensures the app
@@ -46,6 +46,7 @@ func scanUser(row squirrel.RowScanner) (*pbUsers.User, error) {
 	err := row.Scan(
 		&user.Id,
 		(*roleWrapper)(&user.Role),
+		&user.UserName,
 		(*timeWrapper)(user.CreateTime),
 	)
 	if err != nil {

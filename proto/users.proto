@@ -1,16 +1,19 @@
-syntax="proto3";
+syntax = "proto3";
 
 package users;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
-option go_package = "github.com/johanbrandhorst/grpc-postgres/proto;users";
+option go_package = "github.com/tsingson/grpc-postgres/proto;users";
 
 service UserService {
-    rpc AddUser(AddUserRequest) returns (User) {}
-    rpc DeleteUser(DeleteUserRequest) returns (User) {}
-    rpc ListUsers(ListUsersRequest) returns (stream User) {}
+    rpc AddUser (AddUserRequest) returns (User) {
+    }
+    rpc DeleteUser (DeleteUserRequest) returns (User) {
+    }
+    rpc ListUsers (ListUsersRequest) returns (stream User) {
+    }
 }
 
 enum Role {
@@ -21,8 +24,9 @@ enum Role {
 
 message User {
     string id = 1;
-    Role role = 2;
-    google.protobuf.Timestamp create_time = 3;
+    string userName = 2;
+    Role role = 3;
+    google.protobuf.Timestamp create_time = 4;
 }
 
 message UserRole {
@@ -31,6 +35,7 @@ message UserRole {
 
 message AddUserRequest {
     Role role = 1;
+    string userName = 2;
 }
 
 message DeleteUserRequest {
