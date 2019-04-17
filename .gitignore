@@ -1,0 +1,27 @@
+# Build and Release Folders
+bin/
+bin-debug/
+bin-release/
+[Oo]bj/ # FlashDevelop obj
+[Bb]in/ # FlashDevelop bin
+vender/
+golang/vender/
+# Other files and folders
+.settings/
+node_modules/
+vod-ts-data/
+vod-test/
+.idea/
+.gradle/
+vendor/
+deployment/
+test/
+vod-ts-data/
+# Executables
+*.swf
+*.air
+*.ipa
+*.apk
+
+
+
